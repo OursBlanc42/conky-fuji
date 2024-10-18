@@ -1,0 +1,97 @@
+conky.config = {
+    background = true,
+    use_xft = true,
+    font = 'DejaVu Sans Mono:size=10',
+    xftalpha = 0.8,
+    update_interval = 1,
+    total_run_times = 0,
+    own_window = true,
+    own_window_transparent = true,
+    own_window_type = 'desktop',
+    own_window_hints = 'undecorated,below,sticky,skip_taskbar,skip_pager',
+    double_buffer = true,
+    minimum_width = 320,
+    maximum_width = 320,
+    minimum_height = 1330,
+    maximum_height = 1330,
+    draw_shades = true,
+    draw_outline = false,
+    draw_borders = false,
+    draw_graph_borders = true,
+    default_color = '#E0E0E0',  -- gris clair pour le texte général
+    alignment = 'top_right',
+    gap_x = 10,
+    gap_y = 15,
+    no_buffers = true,
+    cpu_avg_samples = 2,
+    net_avg_samples = 2,
+    override_utf8_locale = true,
+    use_spacer = 'none',
+};
+
+conky.text = [[
+# TIME AND DATE
+${color #A0B0C0}${font sans-serif:bold:size=10}DATE & TIME ${hr 2}${font}${color}
+${time %A, %d %B %Y} - ${time %H:%M:%S}
+Uptime: $uptime
+
+# WEATHER
+${color #A0B0C0}${font sans-serif:bold:size=10}WEATHER ${hr 2}${font}${color}
+${alignc}${execpi 1800 curl "wttr.in/Dunkerque?0T"}${font}
+
+# CPU
+${color #A0B0C0}${font sans-serif:bold:size=10}CPU ${hr 2}${font}${color}
+Average Usage: ${cpu}% ${alignr} ${hwmon 1 temp 1}°C
+${cpugraph 60,320 A0B0C0 A0B0C0}
+# FIRST COLUMN 
+Core 00: ${cpu cpu0}% ${goto 115}Core 01: ${cpu cpu1}% ${goto 230}Core 02: ${cpu cpu2}%
+# SECOND COLUMN
+Core 03: ${cpu cpu3}% ${goto 115}Core 04: ${cpu cpu4}% ${goto 230}Core 05: ${cpu cpu5}%
+# THIRD COLUMN
+Core 06: ${cpu cpu6}% ${goto 115}Core 07: ${cpu cpu7}% ${goto 230}Core 08: ${cpu cpu8}%
+# NEXT CORE
+Core 09: ${cpu cpu9}% ${goto 115}Core 10: ${cpu cpu10}% ${goto 230}Core 11: ${cpu cpu11}%
+
+# RAM
+${color #A0B0C0}${font sans-serif:bold:size=10}RAM ${hr 2}${font}${color}
+Usage: ${exec echo "scale=2; $(free -m | grep Mem | awk '{print $3}')*1.04858/1000" | bc} Go / ${exec echo "scale=2; $(free -m | grep Mem | awk '{print $2}')*1.04858/1000" | bc} Go - $memperc%
+${memgraph 60,320 A0B0C0 A0B0C0 }'
+
+# TOP PROCESS
+${color #A0B0C0}${font sans-serif:bold:size=10}TOP PROCESSES ${hr 2}${font}${color}
+Name $alignr PID   CPU%   MEM%${font sans-serif:normal:size=10}
+${top name 1} $alignr ${top pid 1} ${top cpu 1}% ${top mem 1}%
+${top name 2} $alignr ${top pid 2} ${top cpu 2}% ${top mem 2}%
+${top name 3} $alignr ${top pid 3} ${top cpu 3}% ${top mem 3}%
+${top name 4} $alignr ${top pid 4} ${top cpu 4}% ${top mem 4}%
+${top name 5} $alignr ${top pid 5} ${top cpu 5}% ${top mem 5}%
+
+# DISK
+${color #A0B0C0}${font sans-serif:bold:size=10}DISK ${hr 2}${font}${color}
+Usage: ${fs_used /}/${fs_size /} ${alignr} ${execi 30 smartctl -A /dev/nvme0n1 | grep "Temperature Sensor 1" | awk '{print $4 "°C"}'}
+${fs_bar 6 /}'
+
+# SWAP
+${color #A0B0C0}${font sans-serif:bold:size=10}SWAP ${hr 2}${font}${color}
+Usage: $swap/$swapmax - $swapperc%
+${swapbar 6 /}
+
+# BATTERY
+${color #A0B0C0}${font sans-serif:bold:size=10}BATTERY ${hr 2}${font}${color}
+State: ${battery BAT0}
+Remaining Time: ${battery_time BAT0}
+${battery_bar 6 BAT0 #505A60}
+
+# Network usage
+${color #A0B0C0}${font sans-serif:bold:size=10}NETWORK ${hr 2}${font}${color}
+SSID: ${wireless_essid wlp2s0} ${alignr} Signal: ${wireless_link_qual_perc wlp2s0}%
+Speed Down/Up : ${downspeedf wlp2s0} kB/s ${goto 200} | ${upspeedf wlp2s0} kB/s
+Total Down/Up : ${totaldown wlp2s0} ${goto 200} | ${totalup wlp2s0}
+Top Usage :
+${execpi 10 ~/parse_nethogs.sh}
+
+# System Update
+${color #A0B0C0}${font sans-serif:bold:size=10}SYSTEM UPDATES ${hr 2}${font}${color}
+${execpi 3600 ~/check_updates.sh}
+
+]];
